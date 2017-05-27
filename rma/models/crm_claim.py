@@ -68,7 +68,7 @@ class CrmClaim(models.Model):
     write_date = fields.Datetime('Update Date', readonly=True)
     date_deadline = fields.Date('Deadline')
     date_closed = fields.Datetime('Closed', readonly=True)
-    date = fields.Datetime('Claim Date', select=True, default=fields.Datetime.now)
+    date = fields.Datetime('Claim Date', index=True, default=fields.Datetime.now)
     ref = fields.Reference('Reference')# selection=odoo.addons.base.res.res_request.referenceable_models)
     categ_id = fields.Many2one('crm.claim.category', 'Category')
     priority = fields.Selection([('0', 'Low'), ('1', 'Normal'), ('2', 'High')], 'Priority', default='1')
@@ -77,7 +77,7 @@ class CrmClaim(models.Model):
     user_id = fields.Many2one('res.users', 'Responsible', track_visibility='always', default=lambda self: self.env.uid)
     user_fault = fields.Char('Trouble Responsible')
     team_id = fields.Many2one('crm.team', 'Sales Team', oldname='section_id',
-                              select=True, help="Responsible sales team."
+                              index=True, help="Responsible sales team."
                                                 " Define Responsible user and Email account for"
                                                 " mail gateway.",
                               default=lambda self: self.env['crm.team']._get_default_team_id())

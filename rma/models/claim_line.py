@@ -56,7 +56,7 @@ class ClaimLine(models.Model):
         default=lambda self: self.env['res.company']._company_default_get(
             'claim.line'))
     date = fields.Date('Claim Line Date',
-                       select=True,
+                       index=True,
                        default=fields.date.today())
     name = fields.Char('Description', default='none', required=True,
                        help="More precise description of the problem")
