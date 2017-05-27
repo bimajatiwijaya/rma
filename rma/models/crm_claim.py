@@ -24,6 +24,39 @@ class CrmClaim(models.Model):
         team_id = self.env['crm.team']._get_default_team_id(user_id=self.env.uid)
         return self.stage_find([], team_id, [('sequence', '=', '1')])
 
+    @api.model
+    def _get_default_warehouse(self):
+        company_id = self.env.user.company_id.id
+        wh_obj = self.env['stock.warehouse']
+        wh = wh_obj.search([('company_id', '=', company_id)], limit=1)
+        if not wh:
+            raise exceptions.UserError(
+                _('There is no warehouse for the current user\'s company.')
+            )
+        return wh
+
+    def _get_picking_ids(self):
+        """ Search all stock_picking associated with this claim.
+
+        Either directly with claim_id in stock_picking or through a
+        procurement_group.
+        """
+        picking_model = self.env['stock.picking']
+        for claim in self:
+            claim.picking_ids = picking_model.search([
+                '|',
+                ('claim_id', '=', claim.id),
+                ('group_id.claim_id', '=', claim.id)
+            ])
+
+    @api.multi
+    def name_get(self):
+        res = []
+        for claim in self:
+            code = claim.code and str(claim.code) or ''
+            res.append((claim.id, '[' + code + '] ' + claim.name))
+        return res
+
     id = fields.Integer('ID', readonly=True)
     name = fields.Char('Claim Subject', required=True)
     active = fields.Boolean('Active', default=True)
@@ -144,40 +177,6 @@ class CrmClaim(models.Model):
             defaults['priority'] = msg.get('priority')
         defaults.update(custom_values)
         return super(CrmClaim, self.with_context(create_context)).message_new(msg, custom_values=defaults)
-
-    def _get_default_warehouse(self):
-        company_id = self.env.user.company_id.id
-        wh_obj = self.env['stock.warehouse']
-        wh = wh_obj.search([('company_id', '=', company_id)], limit=1)
-        if not wh:
-            raise exceptions.UserError(
-                _('There is no warehouse for the current user\'s company.')
-            )
-        return wh
-
-    def _get_picking_ids(self):
-        """ Search all stock_picking associated with this claim.
-
-        Either directly with claim_id in stock_picking or through a
-        procurement_group.
-        """
-        picking_model = self.env['stock.picking']
-        for claim in self:
-            claim.picking_ids = picking_model.search([
-                '|',
-                ('claim_id', '=', claim.id),
-                ('group_id.claim_id', '=', claim.id)
-            ])
-
-    @api.multi
-    def name_get(self):
-        res = []
-        for claim in self:
-            code = claim.code and str(claim.code) or ''
-            res.append((claim.id, '[' + code + '] ' + claim.name))
-        return res
-
-
 
     claim_line_ids = fields.One2many('claim.line', 'claim_id',
                                      string='Return lines')
