@@ -17,7 +17,7 @@
     'depends': [
         'purchase',
         'sale',
-        'sales_team',
+        'crm',
         'stock',
         'crm_rma_location',
         'product_warranty',
@@ -38,6 +38,6 @@
     'test': [
         'test/test_invoice_refund.yml'
     ],
-    'installable': False,
+    'installable': True,
     'auto_install': False,
 }
