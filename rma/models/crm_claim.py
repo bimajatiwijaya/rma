@@ -94,7 +94,32 @@ class CrmClaim(models.Model):
                                domain="['|', ('team_ids', '=', team_id), ('case_default', '=', True)]",
                                default=lambda s: s._get_default_stage_id())
     cause = fields.Text('Root Cause')
-
+    claim_line_ids = fields.One2many('claim.line', 'claim_id',
+                                     string='Return lines')
+    planned_revenue = fields.Float('Expected revenue')
+    planned_cost = fields.Float('Expected cost')
+    real_revenue = fields.Float()
+    real_cost = fields.Float()
+    invoice_ids = fields.One2many('account.invoice', 'claim_id', 'Refunds',
+                                  copy=False)
+    picking_ids = fields.One2many('stock.picking',
+                                  compute=_get_picking_ids,
+                                  string='RMA',
+                                  copy=False)
+    invoice_id = fields.Many2one('account.invoice', string='Invoice',
+                                 help='Related original Cusotmer invoice')
+    pick = fields.Boolean('Pick the product in the store')
+    delivery_address_id = fields.Many2one('res.partner',
+                                          string='Partner delivery address',
+                                          help="This address will be used to "
+                                          "deliver repaired or replacement "
+                                          "products.")
+    sequence = fields.Integer(default=lambda *args: 1)
+    warehouse_id = fields.Many2one('stock.warehouse', string='Warehouse',
+                                   required=True,
+                                   default=_get_default_warehouse)
+    rma_number = fields.Char(size=128, help='RMA Number provided by supplier')
+    
     @api.model
     def stage_find(self, cases, team_id, domain=[], order='sequence'):
         """ Override of the base.stage method
@@ -177,32 +202,6 @@ class CrmClaim(models.Model):
             defaults['priority'] = msg.get('priority')
         defaults.update(custom_values)
         return super(CrmClaim, self.with_context(create_context)).message_new(msg, custom_values=defaults)
-
-    claim_line_ids = fields.One2many('claim.line', 'claim_id',
-                                     string='Return lines')
-    planned_revenue = fields.Float('Expected revenue')
-    planned_cost = fields.Float('Expected cost')
-    real_revenue = fields.Float()
-    real_cost = fields.Float()
-    invoice_ids = fields.One2many('account.invoice', 'claim_id', 'Refunds',
-                                  copy=False)
-    picking_ids = fields.One2many('stock.picking',
-                                  compute=_get_picking_ids,
-                                  string='RMA',
-                                  copy=False)
-    invoice_id = fields.Many2one('account.invoice', string='Invoice',
-                                 help='Related original Cusotmer invoice')
-    pick = fields.Boolean('Pick the product in the store')
-    delivery_address_id = fields.Many2one('res.partner',
-                                          string='Partner delivery address',
-                                          help="This address will be used to "
-                                          "deliver repaired or replacement "
-                                          "products.")
-    sequence = fields.Integer(default=lambda *args: 1)
-    warehouse_id = fields.Many2one('stock.warehouse', string='Warehouse',
-                                   required=True,
-                                   default=_get_default_warehouse)
-    rma_number = fields.Char(size=128, help='RMA Number provided by supplier')
 
     @api.model
     def _get_claim_type_default(self):
