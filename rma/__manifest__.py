@@ -19,7 +19,6 @@
         'sale',
         'sales_team',
         'stock',
-        'crm_claim_rma_code',
         'crm_rma_location',
         'product_warranty',
     ],
