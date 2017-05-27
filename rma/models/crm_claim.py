@@ -48,8 +48,10 @@ class CrmClaim(models.Model):
                                                 " Define Responsible user and Email account for"
                                                 " mail gateway.",
                               default=lambda self: self.env['crm.team']._get_default_team_id())
-    company_id = fields.Many2one('res.company', 'Company',
-                                 default=lambda s: s.env['res.company']._company_default_get('crm.case'))
+    company_id = fields.Many2one(change_default=True,
+                                 default=lambda self:
+                                 self.env['res.company']._company_default_get(
+                                     'crm.claim'))
     partner_id = fields.Many2one('res.partner', 'Partner')
     email_cc = fields.Text('Watchers Emails', size=252,
                            help="These email addresses will be added to the CC field of all inbound and outbound emails for this record before being sent. Separate multiple email addresses with a comma")
@@ -175,10 +177,7 @@ class CrmClaim(models.Model):
             res.append((claim.id, '[' + code + '] ' + claim.name))
         return res
 
-    company_id = fields.Many2one(change_default=True,
-                                 default=lambda self:
-                                 self.env['res.company']._company_default_get(
-                                     'crm.claim'))
+
 
     claim_line_ids = fields.One2many('claim.line', 'claim_id',
                                      string='Return lines')
