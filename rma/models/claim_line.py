@@ -10,8 +10,8 @@ from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 
-from openerp import _, api, exceptions, fields, models
-from openerp.tools import (DEFAULT_SERVER_DATE_FORMAT,
+from odoo import _, api, exceptions, fields, models
+from odoo.tools import (DEFAULT_SERVER_DATE_FORMAT,
                            DEFAULT_SERVER_DATETIME_FORMAT)
 
 from .invoice_no_date import InvoiceNoDate

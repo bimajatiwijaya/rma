@@ -69,7 +69,7 @@ class CrmClaim(models.Model):
     date_deadline = fields.Date('Deadline')
     date_closed = fields.Datetime('Closed', readonly=True)
     date = fields.Datetime('Claim Date', select=True, default=fields.Datetime.now)
-    ref = fields.Reference('Reference', selection=odoo.addons.base.res.res_request.referencable_models)
+    ref = fields.Reference('Reference')# selection=odoo.addons.base.res.res_request.referenceable_models)
     categ_id = fields.Many2one('crm.claim.category', 'Category')
     priority = fields.Selection([('0', 'Low'), ('1', 'Normal'), ('2', 'High')], 'Priority', default='1')
     type_action = fields.Selection([('correction', 'Corrective Action'), ('prevention', 'Preventive Action')],
@@ -90,7 +90,7 @@ class CrmClaim(models.Model):
                            help="These email addresses will be added to the CC field of all inbound and outbound "
                            " emails for this record before being sent. Separate multiple email addresses with a comma")
     email_from = fields.Char('Email', size=128, help="Destination email for email gateway.")
-    partner_phone = fields.char('Phone')
+    partner_phone = fields.Char('Phone')
     stage_id = fields.Many2one('crm.claim.stage', 'Stage', track_visibility='onchange',
                                domain="['|', ('team_ids', '=', team_id), ('case_default', '=', True)]",
                                default=lambda s: s._get_default_stage_id())
@@ -384,7 +384,7 @@ class CrmClaimStage(models.Model):
                                 'stage_id', 'team_id', string='Teams',
                                 help="Link between stages and sales teams. When set, "
                                 "this limitate the current stage to the selected sales teams.")
-    case_default = fields.boolean('Common to All Teams',
+    case_default = fields.Boolean('Common to All Teams',
                                   help="If you check this field, this stage will be proposed by default "
                                   " on each sales team. It will not assign this stage to existing teams.")
 
