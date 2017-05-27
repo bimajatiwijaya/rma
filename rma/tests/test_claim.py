@@ -14,14 +14,14 @@ class TestClaim(TransactionCase):
         claim = self.env['crm.claim'].create({'name': 'Test claim'})
 
         self.assertEqual(
-            self.env.ref('crm_claim_type.crm_claim_type_customer'),
+            self.env.ref('rma.crm_claim_type_customer'),
             claim.claim_type,
         )
         self.assertIsNotNone(claim.code)
         self.assertTrue(claim.code.startswith('RMA-C/'))
 
     def test_create__with_claim_type(self):
-        supplier_type = self.env.ref('crm_claim_type.crm_claim_type_supplier')
+        supplier_type = self.env.ref('rma.crm_claim_type_supplier')
         claim = self.env['crm.claim'].create({
             'name': 'Test claim',
             'claim_type': supplier_type.id,

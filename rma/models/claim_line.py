@@ -171,11 +171,10 @@ class ClaimLine(models.Model):
                                        string='Return Stock Location',
                                        help='The return stock location'
                                        ' of the returned product')
-    claim_type = fields.Many2one(related='claim_id.claim_type',
+    claim_type = fields.Many2one('crm.claim.type', related='claim_id.claim_type',
                                  string="Claim Line Type",
                                  store=True, help="Claim classification")
-    invoice_date = fields.Datetime(related='invoice_line_id.invoice_id.'
-                                   'create_date',
+    invoice_date = fields.Datetime(related='invoice_line_id.invoice_id.create_date',
                                    help="Date of Claim Invoice")
 
     # Method to calculate total amount of the line : qty*UP
@@ -256,7 +255,7 @@ class ClaimLine(models.Model):
         if isinstance(claim_type, self.env['crm.claim.type'].__class__):
             claim_type = claim_type.id
 
-        if claim_type == self.env.ref('crm_claim_type.'
+        if claim_type == self.env.ref('rma.'
                                       'crm_claim_type_supplier').id:
             try:
                 warranty_duration = product.seller_ids[0].warranty_duration

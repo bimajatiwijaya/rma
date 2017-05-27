@@ -69,7 +69,7 @@ class CrmClaim(models.Model):
     date_deadline = fields.Date('Deadline')
     date_closed = fields.Datetime('Closed', readonly=True)
     date = fields.Datetime('Claim Date', index=True, default=fields.Datetime.now)
-    ref = fields.Reference('Reference')# selection=odoo.addons.base.res.res_request.referenceable_models)
+    # ref = fields.Reference('Reference')# selection=odoo.addons.base.res.res_request.referenceable_models)
     categ_id = fields.Many2one('crm.claim.category', 'Category')
     priority = fields.Selection([('0', 'Low'), ('1', 'Normal'), ('2', 'High')], 'Priority', default='1')
     type_action = fields.Selection([('correction', 'Corrective Action'), ('prevention', 'Preventive Action')],
@@ -81,7 +81,7 @@ class CrmClaim(models.Model):
                                                 " Define Responsible user and Email account for"
                                                 " mail gateway.",
                               default=lambda self: self.env['crm.team']._get_default_team_id())
-    company_id = fields.Many2one(change_default=True,
+    company_id = fields.Many2one('res.company', change_default=True,
                                  default=lambda self:
                                  self.env['res.company']._company_default_get(
                                      'crm.claim'))
@@ -120,7 +120,24 @@ class CrmClaim(models.Model):
                                    required=True,
                                    default=_get_default_warehouse)
     rma_number = fields.Char(size=128, help='RMA Number provided by supplier')
-    
+    claim_type = fields.Many2one('crm.claim.type', help="Claim classification")
+    stage_id = fields.Many2one(
+        'crm.claim.stage',
+        string='Stage',
+        track_visibility='onchange',
+        domain="[ '&',"
+               "'|',('team_ids', '=', team_id), "
+               "('case_default', '=', True), "
+               "'|',('claim_type', '=', claim_type)"
+               ",('claim_common', '=', True)]")
+    code = fields.Char(
+        string='Claim Number', required=True, default="/", readonly=True)
+
+    _sql_constraints = [
+        ('crm_claim_unique_code', 'UNIQUE (code)',
+         'The code must be unique!'),
+    ]
+
     @api.model
     def stage_find(self, cases, team_id, domain=[], order='sequence'):
         """ Override of the base.stage method
@@ -167,7 +184,8 @@ class CrmClaim(models.Model):
         context = self._context.copy()
         if vals.get('team_id') and not context.get('default_team_id'):
             context['default_team_id'] = vals.get('team_id')
-
+        if vals.get('code', '/') == '/':
+            vals['code'] = self.env['ir.sequence'].next_by_code('crm.claim')
         # context: no_log, because subtype already handle this
         return super(CrmClaim, self).with_context(context).create(vals)
 
@@ -177,6 +195,10 @@ class CrmClaim(models.Model):
         default = dict(default or {})
         default['name'] = self.name
         default['stage_id'] = self._get_default_stage_id()
+        if default is None:
+            default = {}
+        if 'code' not in default:
+            default['code'] = self.env['ir.sequence'].next_by_code('crm.claim')
         return super(CrmClaim, self).copy(default=default)
 
     # -------------------------------------------------------
@@ -206,10 +228,9 @@ class CrmClaim(models.Model):
 
     @api.model
     def _get_claim_type_default(self):
-        return self.env.ref('crm_claim_type.crm_claim_type_customer')
+        return self.env.ref('rma.crm_claim_type_customer')
 
-    claim_type = \
-        fields.Many2one(default=_get_claim_type_default,
+    claim_type = fields.Many2one('crm.claim.type', default=_get_claim_type_default,
                         help="Claim classification",
                         required=True)
 
@@ -332,19 +353,19 @@ class CrmClaim(models.Model):
             claim_type_code
         ) or '/'
 
-    @api.model
-    def create(self, values):
-        values = values or {}
-        if 'code' not in values or not values.get('code') \
-                or values.get('code') == '/':
-
-            claim_type = values.get('claim_type')
-            if not claim_type:
-                claim_type = self._get_claim_type_default().id
-
-            values['code'] = self._get_sequence_number(claim_type)
-
-        return super(CrmClaim, self).create(values)
+    # @api.model
+    # def create(self, values):
+    #     values = values or {}
+    #     if 'code' not in values or not values.get('code') \
+    #             or values.get('code') == '/':
+    #
+    #         claim_type = values.get('claim_type')
+    #         if not claim_type:
+    #             claim_type = self._get_claim_type_default().id
+    #
+    #         values['code'] = self._get_sequence_number(claim_type)
+    #
+    #     return super(CrmClaim, self).create(values)
 
     @api.multi
     def copy(self, default=None):
@@ -387,6 +408,11 @@ class CrmClaimStage(models.Model):
     case_default = fields.Boolean('Common to All Teams',
                                   help="If you check this field, this stage will be proposed by default "
                                   " on each sales team. It will not assign this stage to existing teams.")
+    claim_type = fields.Many2one('crm.claim.type', help="Claim classification")
+    claim_common = fields.Boolean(string='Common to All Claim Types',
+                                  help="If you check this field,"
+                                       " this stage will be proposed"
+                                       " by default on each claim type.")
 
 
 class ResPartner(models.Model):

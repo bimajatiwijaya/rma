@@ -23,12 +23,16 @@
         'product_warranty',
     ],
     'data': [
+        'data/claim_sequence.xml',
+        'data/crm_claim_type.xml',
         'data/ir_sequence_type.xml',
         'data/crm_team.xml',
         'data/crm_claim_category.xml',
-        'views/account_invoice.xml',
         'wizards/claim_make_picking.xml',
         'views/crm_claim.xml',
+        'views/crm_claim_view.xml',
+        'views/crm_claim_menu.xml',
+        'views/account_invoice.xml',
         "views/claim_line.xml",
         'views/res_partner.xml',
         'views/stock_view.xml',
@@ -38,6 +42,6 @@
     'test': [
         'test/test_invoice_refund.yml'
     ],
-    'installable': False,
+    'installable': True,
     'auto_install': False,
 }
