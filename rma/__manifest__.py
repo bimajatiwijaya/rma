@@ -32,6 +32,7 @@
         'wizards/claim_make_picking.xml',
         'views/crm_claim.xml',
         'views/crm_claim_view.xml',
+        'views/crm_claim_type.xml',
         'views/crm_claim_menu.xml',
         'views/account_invoice.xml',
         "views/claim_line.xml",

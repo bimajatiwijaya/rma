@@ -181,13 +181,18 @@ class CrmClaim(models.Model):
 
     @api.model
     def create(self, vals):
-        context = self._context.copy()
-        if vals.get('team_id') and not context.get('default_team_id'):
-            context['default_team_id'] = vals.get('team_id')
-        if vals.get('code', '/') == '/':
-            vals['code'] = self.env['ir.sequence'].next_by_code('crm.claim')
+        values = vals or {}
+        if 'code' not in values or not values.get('code') \
+                or values.get('code') == '/':
+
+            claim_type = values.get('claim_type')
+            if not claim_type:
+                claim_type = self._get_claim_type_default().id
+
+            values['code'] = self._get_sequence_number(claim_type)
+
         # context: no_log, because subtype already handle this
-        return super(CrmClaim, self).with_context(context).create(vals)
+        return super(CrmClaim, self).create(vals)
 
     @api.multi
     def copy(self, default=None):
@@ -345,27 +350,12 @@ class CrmClaim(models.Model):
         return recipients
 
     def _get_sequence_number(self, code_id):
-        claim_type_code = self.env['crm.claim.type'].\
-            browse(code_id).ir_sequence_id.code
+        claim_type_code = self.env['crm.claim.type'].browse([code_id]).ir_sequence_id.code
         sequence = self.env['ir.sequence']
-
         return claim_type_code and sequence.next_by_code(
             claim_type_code
         ) or '/'
 
-    # @api.model
-    # def create(self, values):
-    #     values = values or {}
-    #     if 'code' not in values or not values.get('code') \
-    #             or values.get('code') == '/':
-    #
-    #         claim_type = values.get('claim_type')
-    #         if not claim_type:
-    #             claim_type = self._get_claim_type_default().id
-    #
-    #         values['code'] = self._get_sequence_number(claim_type)
-    #
-    #     return super(CrmClaim, self).create(values)
 
     @api.multi
     def copy(self, default=None):

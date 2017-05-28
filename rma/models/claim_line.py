@@ -404,5 +404,4 @@ class ClaimLine(models.Model):
     @api.multi
     def _get_display_name(self):
         for line_id in self:
-            line_id.display_name = "%s - %s" % (
-                line_id.claim_id.code, line_id.name)
+            line_id.display_name = "%s - %s" % (line_id.claim_id.code, line_id.name)
