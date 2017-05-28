@@ -115,10 +115,10 @@ class ClaimLine(models.Model):
 
     @api.model
     def get_warranty_return_partner(self):
+        # return self.env['product.supplierinfo']._columns[
+        #     'warranty_return_partner'
+        # ].selection
         return False
-        return self.env['product.supplierinfo']._columns[
-            'warranty_return_partner'
-        ].selection
 
     warranty_type = fields.Selection(
         get_warranty_return_partner, readonly=True,
@@ -404,4 +404,5 @@ class ClaimLine(models.Model):
     @api.multi
     def _get_display_name(self):
         for line_id in self:
-            line_id.display_name = "%s - %s" % (line_id.claim_id.code, line_id.name)
+            line_id.display_name = "%s - %s" % (
+line_id.claim_id.code, line_id.name)
