@@ -25,6 +25,7 @@
     'data': [
         'data/claim_sequence.xml',
         'data/crm_claim_type.xml',
+        'data/crm_claim_stage.xml',
         'data/ir_sequence_type.xml',
         'data/crm_team.xml',
         'data/crm_claim_category.xml',
