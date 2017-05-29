@@ -40,7 +40,9 @@
         'views/stock_view.xml',
         'security/ir.model.access.csv',
     ],
-    'demo': [],
+    'demo': [
+        'data/crm_claim_demo.xml',
+    ],
     'test': [
         'test/test_invoice_refund.yml'
     ],

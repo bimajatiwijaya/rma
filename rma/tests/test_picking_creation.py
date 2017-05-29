@@ -17,7 +17,7 @@ class TestPickingCreation(common.TransactionCase):
         self.stockpicking = self.env['stock.picking']
         claim = self.env['crm.claim']
 
-        self.product_id = self.env.ref('product.product_product_4')
+        self.product_id = self.env.ref('product.product_product_1')
         self.partner_id = self.env.ref('base.res_partner_12')
 
         self.customer_location_id = self.env.ref(
@@ -41,10 +41,11 @@ class TestPickingCreation(common.TransactionCase):
                     'price_unit': product.list_price
 
                 }) for product, qty in [
-                    (self.env.ref('product.product_product_25'), 3),
-                    (self.env.ref('product.product_product_30'), 5),
-                    (self.env.ref('product.product_product_33'), 2),
+                    (self.env.ref('product.product_product_1'), 3),
+                    (self.env.ref('product.product_product_10'), 5),
+                    (self.env.ref('product.product_product_11'), 2),
                 ]
+                # 25,30,33
             ]
         })
         invoice_id = self.sale_order.action_invoice_create()[0]
@@ -159,7 +160,7 @@ class TestPickingCreation(common.TransactionCase):
 
     def test_03_invoice_refund(self):
         claim_id = self.env['crm.claim'].browse(
-            self.ref('crm_claim.crm_claim_6')
+            self.ref('rma.crm_claim_6')
         )
         self.invoice.confirm_paid()
         claim_id.write({
@@ -202,7 +203,7 @@ class TestPickingCreation(common.TransactionCase):
         It tests that display_name for each line has a message for it
         """
         claim_line_ids = self.env['crm.claim'].browse(
-            self.ref('crm_claim.crm_claim_6')
+            self.ref('rma.crm_claim_6')
         )[0].claim_line_ids
 
         all_values = sum([bool(line_id.display_name)

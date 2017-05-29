@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
-        <record id="categ_claim10" model="crm.claim.category">
+    <record model="crm.claim.category" id="categ_claim1">
+        <field name="name">Factual Claims</field>
+        <field name="team_id" ref="sales_team.team_sales_department"/>
+    </record>
+
+    <record model="crm.claim.category" id="categ_claim2">
+        <field name="name">Value Claims</field>
+        <field name="team_id" ref="sales_team.team_sales_department"/>
+         </record>
+
+    <record model="crm.claim.category" id="categ_claim3">
+        <field name="name">Policy Claims</field>
+        <field name="team_id" ref="sales_team.team_sales_department"/>
+    </record>
+    <record id="categ_claim10" model="crm.claim.category">
         <field name="name">No Inventory</field>
         <field name="team_id" ref="team_after_sales_service"/>
     </record>
