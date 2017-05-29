@@ -132,7 +132,7 @@ class ClaimMakePicking(models.TransientModel):
 
     def _get_picking_line_data(self, claim, picking, line):
         return {
-            'name': line.product_id.name_template,
+            'name': line.product_id.display_name,
             'priority': '0',
             'date': time.strftime(DT_FORMAT),
             'date_expected': time.strftime(DT_FORMAT),
@@ -232,7 +232,7 @@ class ClaimMakePicking(models.TransientModel):
 
         for line in self.claim_line_ids:
             procurement = self.env['procurement.order'].create({
-                'name': line.product_id.name_template,
+                'name': line.product_id.display_name,
                 'group_id': group.id,
                 'origin': claim.code,
                 'warehouse_id': self.delivery_warehouse_id.id,
