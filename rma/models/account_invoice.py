@@ -33,8 +33,8 @@ class AccountInvoice(models.Model):
                 # For each lines replace quantity and add claim_line_id
                 inv_line = claim_line.invoice_line_id
                 clean_line = {}
-                for field_name, field in inv_line._all_columns.iteritems():
-                    column_type = field.column._type
+                for field_name, field in inv_line._fields.iteritems():
+                    column_type = field.type
                     if column_type == 'many2one':
                         clean_line[field_name] = inv_line[field_name].id
                     elif column_type not in ('many2many', 'one2many'):

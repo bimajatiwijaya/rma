@@ -162,7 +162,7 @@ class TestPickingCreation(common.TransactionCase):
         claim_id = self.env['crm.claim'].browse(
             self.ref('rma.crm_claim_6')
         )
-        self.invoice.confirm_paid()
+        self.invoice.state = 'paid'
         claim_id.write({
             'invoice_id': self.invoice.id
         })
@@ -172,6 +172,8 @@ class TestPickingCreation(common.TransactionCase):
         invoice_refund_wizard_id = self.env['account.invoice.refund'].\
             with_context({
                 # Test that invoice_ids is correctly passed as active_ids
+                'active_id': claim_id.invoice_id.id,
+                'active_ids': [claim_id.invoice_id.id],
                 'invoice_ids': [claim_id.invoice_id.id],
                 'claim_line_ids':
                 [[4, cl.id, False] for cl in claim_id.claim_line_ids],
@@ -184,11 +186,9 @@ class TestPickingCreation(common.TransactionCase):
         )
 
         res = invoice_refund_wizard_id.invoice_refund()
-
         self.assertTrue(res)
         self.assertEquals(res['res_model'], 'account.invoice')
         self.assertEqual(2, len(res['domain']))
-
         # Second leaf is ('id', 'in', [created_invoice_id])
         self.assertEqual(('id', 'in'), res['domain'][1][:2])
         self.assertEqual(1, len(res['domain'][1][2]))
